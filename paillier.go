@@ -56,6 +56,11 @@ func GenerateKeyPair(bitlen int) (*PublicKey, *PrivateKey, error) {
 	return pk, sk, nil
 }
 
+// ToString exports the private key values to hexadecimal strings
+func (pk *PrivateKey) ToString() (string, string) {
+	return pk.mu.Text(16), pk.lambda.Text(16)
+}
+
 // NewPublicKey creates a public key with the parameters
 func NewPublicKey(N, g string) (*PublicKey, error) {
 	n, ok := new(big.Int).SetString(N, 16)
