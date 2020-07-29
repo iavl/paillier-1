@@ -42,12 +42,14 @@ func (pk *PublicKey) AddPlaintext(ct *big.Int, msg int64) (*big.Int, error) {
 // corresponding plaintext messages.
 func (pk *PublicKey) BatchAdd(cts ...*big.Int) *big.Int {
 	total := new(big.Int).SetInt64(1)
-	for i, ct := range cts {
+	fmt.Println(fmt.Sprintf("N2: %x", pk.N2))
+
+	for _, ct := range cts {
+		fmt.Println(fmt.Sprintf("total: %x", total))
 		total.Mul(total, ct)
-		if i%5 == 0 {
-			total.Mod(total, pk.N2)
-		}
+		total.Mod(total, pk.N2)
 	}
+	fmt.Println(fmt.Sprintf("total: %x", total))
 	return total.Mod(total, pk.N2)
 }
 

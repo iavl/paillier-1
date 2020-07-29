@@ -26,7 +26,7 @@ var one = new(big.Int).SetInt64(1)
 // GenerateKeyPair returns a Paillier key pair such that the squared modulus `N2`, in the
 // public key, has a bit length equivalent to the value informed in the `bitlen` parameter
 func GenerateKeyPair(bitlen int) (*PublicKey, *PrivateKey, error) {
-	if bitlen < 1024 {
+	if bitlen < 2 {
 		return nil, nil, fmt.Errorf("The `bitlen` parameter should not be smaller then 1024")
 	}
 	p := getPrime(bitlen / 2)
