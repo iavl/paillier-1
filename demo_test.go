@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	abiFilePath = "/Users/zhuliting/go/paillier-1/paillier.abi"
+	abiFilePath = "/Users/zhuliting/go/paillier-1/contract/paillier.abi"
 	yamlPath    = "/Users/zhuliting/go/paillier-1/config/sdk.yaml"
 
 	contractBech32Addr = "nch1hmljmh2n4esr6de8fd9jjnsth3ty0ux7d7082m"
@@ -33,7 +33,54 @@ var (
 	amount = sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(0))
 )
 
-func TestPaillier(t *testing.T) {
+func TestPaillierDemo(t *testing.T) {
+	// 1. generate pk and sk
+	pk, sk := getRSAKeyPair()
+	//pk, _ := getRSAKeyPair()
+
+	SetN2(t, pk.N2)
+
+	// 2. read data from file
+	lines := readDataFromFile("data.txt")
+
+	for idx, items := range lines {
+		fmt.Println(fmt.Sprintf("===================== 第 %d 组测试数据 =====================", idx))
+		// generate taskId
+		taskId := fmt.Sprintf("00000000000000000000000000000000000000000000000000000000000000%02d", idx)
+		fmt.Println(fmt.Sprintf("task id: %s", taskId))
+
+		clear(t, taskId)
+
+		// 3. call contract to do paillier add
+		for i, item := range items {
+			//fmt.Println(fmt.Sprintf("%d", item))
+			cipherText, _ := pk.Encrypt(item)
+			fmt.Println(fmt.Sprintf("机构 %d, 明文贷款额：%d --> 加密密文：%d", i, item, cipherText))
+			paillerAdd(t, taskId, cipherText)
+		}
+
+		// 4. query result from contract
+		result := QueyrPaillierResult(taskId)
+		fmt.Println(fmt.Sprintf("===================== 第 %d 组测试结果 =====================", idx))
+		fmt.Println(fmt.Sprintf("合约计算出的结果: %v", result))
+
+		// 5. decrypt result
+		// Test the homomorphic property
+		sum, err := sk.Decrypt(result)
+		if err != nil {
+			t.Errorf("decrypt failed: %v", err.Error())
+			return
+		}
+
+		fmt.Println(fmt.Sprintf("使用RSA私钥解密后的结果: [%d]", sum))
+		fmt.Println(fmt.Sprintf("=========================================================="))
+
+		//break
+		time.Sleep(2)
+	}
+}
+
+func TestPaillierLocal(t *testing.T) {
 	pk, sk, _ := GenerateKeyPair(32)
 
 	N, g := pk.ToDecimalString()
@@ -188,53 +235,6 @@ func getRSAKeyPair() (*PublicKey, *PrivateKey) {
 	fmt.Println(fmt.Sprintf("RSA私钥：λ: %s μ: %s", lam, mu))
 
 	return pk, sk
-}
-
-func TestPaillierDemo(t *testing.T) {
-	// 1. generate pk and sk
-	pk, sk := getRSAKeyPair()
-	//pk, _ := getRSAKeyPair()
-
-	SetN2(t, pk.N2)
-
-	// 2. read data from file
-	lines := readDataFromFile("data.txt")
-
-	for idx, items := range lines {
-		fmt.Println(fmt.Sprintf("===================== 第 %d 组测试数据 =====================", idx))
-		// generate taskId
-		taskId := fmt.Sprintf("00000000000000000000000000000000000000000000000000000000000000%02d", idx)
-		fmt.Println(fmt.Sprintf("task id: %s", taskId))
-
-		clear(t, taskId)
-
-		// 3. call contract to do paillier add
-		for i, item := range items {
-			//fmt.Println(fmt.Sprintf("%d", item))
-			cipherText, _ := pk.Encrypt(item)
-			fmt.Println(fmt.Sprintf("机构 %d, 明文贷款额：%d --> 加密密文：%d", i, item, cipherText))
-			paillerAdd(t, taskId, cipherText)
-		}
-
-		// 4. query result from contract
-		result := QueyrPaillierResult(taskId)
-		fmt.Println(fmt.Sprintf("===================== 第 %d 组测试结果 =====================", idx))
-		fmt.Println(fmt.Sprintf("合约计算出的结果: %v", result))
-
-		// 5. decrypt result
-		// Test the homomorphic property
-		sum, err := sk.Decrypt(result)
-		if err != nil {
-			t.Errorf("decrypt failed: %v", err.Error())
-			return
-		}
-
-		fmt.Println(fmt.Sprintf("使用RSA私钥解密后的结果: [%d]", sum))
-		fmt.Println(fmt.Sprintf("=========================================================="))
-
-		//break
-		time.Sleep(2)
-	}
 }
 
 func QueyrPaillierResult(taskId string) (result *big.Int) {
