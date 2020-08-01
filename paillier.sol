@@ -39,7 +39,6 @@ contract Paillier {
 
     address public owner;
 
-    uint8 public count = 32;
     uint256 public N2 = 1;
     mapping(bytes32 => uint256) results;
 
@@ -76,6 +75,14 @@ contract Paillier {
     }
 
     /**
+    * @dev clear result by taskId
+    */
+    function clear(bytes32 taskId) public {
+        require(owner == msg.sender, "only owner");
+        results[taskId] = 1;
+    }
+
+    /**
      * @dev for paillier add
      */
     function paillierAdd(bytes32 taskId, uint256 encryptInput) public {
@@ -83,8 +90,8 @@ contract Paillier {
             results[taskId] = 1;
         }
 
-        results[taskId] = results[taskId].mul(encryptInput);
-        results[taskId] = results[taskId].mod(N2);
+        uint256 res = results[taskId];
+        res = res.mul(encryptInput);
+        results[taskId] = res.mod(N2);
     }
-
 }

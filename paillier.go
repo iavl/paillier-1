@@ -61,6 +61,11 @@ func (pk *PrivateKey) ToString() (string, string) {
 	return pk.mu.Text(16), pk.lambda.Text(16)
 }
 
+// ToDecimalString exports the private key values to decimal strings
+func (pk *PrivateKey) ToDecimalString() (string, string) {
+	return pk.mu.Text(10), pk.lambda.Text(10)
+}
+
 // NewPublicKey creates a public key with the parameters
 func NewPublicKey(N, g string) (*PublicKey, error) {
 	n, ok := new(big.Int).SetString(N, 16)
@@ -81,6 +86,11 @@ func NewPublicKey(N, g string) (*PublicKey, error) {
 // ToString exports the public key values to hexadecimal strings
 func (pk *PublicKey) ToString() (string, string) {
 	return pk.N.Text(16), pk.g.Text(16)
+}
+
+// ToDecimalString exports the public key values to decimal strings
+func (pk *PublicKey) ToDecimalString() (string, string) {
+	return pk.N.Text(10), pk.g.Text(10)
 }
 
 // Encrypt returns a IND-CPA secure ciphertext for the message `msg`
