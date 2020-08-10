@@ -26,7 +26,7 @@ const (
 	abiFilePath = "/Users/zhuliting/go/paillier-1/contract/paillier.abi"
 	yamlPath    = "/Users/zhuliting/go/paillier-1/config/sdk.yaml"
 
-	contractBech32Addr = "nch1hmljmh2n4esr6de8fd9jjnsth3ty0ux7d7082m"
+	contractBech32Addr = "nch1qf5wqz2knqjxtp3umpyuj4wfy5kdenz40hhq9d"
 )
 
 var (
